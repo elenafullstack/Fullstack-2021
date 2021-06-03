@@ -46,7 +46,7 @@ const App = () => {
     const largest = Math.max(...copy) 
     const index = copy.findIndex(x => x === largest)
     setMostVoted(index)
-    
+       
  }
        
   const [selected, setSelected] = useState(0)
