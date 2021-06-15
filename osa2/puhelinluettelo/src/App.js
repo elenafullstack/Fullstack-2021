@@ -2,7 +2,21 @@ import React, { useState, useEffect } from 'react'
 import personService from './services/persons'
 
 
-
+const BadError = (props) => {
+  if (props.message !== null && props.message !== '') {
+    return (
+      <div className = "baderror">
+     <p>{props.message}</p>
+     </div>
+    )
+}  else {
+  return(
+    <div className = "nothing">
+    <p>{props.message}</p>
+    </div>
+  )
+}
+}
 
 const Error = (props) => {
 
@@ -56,6 +70,7 @@ const PersonForm = (props) => {
 
 const App = () => {
   const [persons, setPersons] = useState ([])
+  
 
   const hook = () => {
     personService.getPersons()
@@ -72,7 +87,10 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
   const [newError, setError] = useState('')
   const [newTimeout, setNewTimeout] = useState('')
-
+  const [badError, setBadError] = useState('')
+  
+ 
+  
 
   const callTimeout = (timeout) => {
       return timeout
@@ -97,30 +115,48 @@ const App = () => {
       name: newName,
       number: newNumber
     }
+  
 
     const already = persons.filter(x => x.name === newName)
-   
+  
 
   if(already.length === 1) {
+    
     const old = already[0]
     if ( window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
       nameObject.id = old.id
-      personService.updatePerson(old,nameObject)
+          personService.updatePerson(old,nameObject).then(response => {
+           setPersons(persons.map(x => x.id !== old.id ? x : response.data))
+           setNewTimeout(clearTimeout(newTimeout))
+           setError(
+             `${newName}'s number is updated`)
+           setNewTimeout(setTimeout(() => {
+             setError(null)
+           }, 5000))
+           callTimeout(newTimeout)
+          
+          }).catch(error=>{
+
+                setNewTimeout(clearTimeout(newTimeout))
+                 setBadError(
+                  `Information of ${nameObject.name} has already been removed from the server`)
+                  setNewTimeout(setTimeout(() => {
+                  setBadError(null)
+                  }, 5000))
+                 callTimeout(newTimeout)
+                
+                 
+              })
+ 
+     
       
-      const newPersons = persons.map(x => x.id === old.id ? nameObject : x)
-      setPersons(newPersons)
-      setNewTimeout(clearTimeout(newTimeout))
-      setError(
-        `${newName}'s number is updated`)
-      setNewTimeout(setTimeout(() => {
-        setError(null)
-      }, 5000))
-      callTimeout(newTimeout)
-    }
-  } else {
+  }
+ }  else {
+
     personService.updatePersons(nameObject)
     .then(response => {
     setPersons(persons.concat(response.data))
+     })
     setNewTimeout(clearTimeout(newTimeout))
     setError(
       `${newName} is added to the phonebook`)
@@ -131,14 +167,14 @@ const App = () => {
     setNewName('')
     setNewNumber('')
    
-    })
-  
-   }
+  }
 
- }
+}
+
 
   const deleteSomeone = (person) => {
-    if (personService.deletePerson(person)) {
+    if ((window.confirm(`Delete ${person.name}?`))) {
+      personService.deletePerson(person).then(response=>response.data)
      const newPersons = persons.filter(x => x.id !== person.id)  
     setPersons(newPersons)
     setNewTimeout(clearTimeout(newTimeout))
@@ -158,12 +194,14 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Error message = {newError}/>
+       <BadError message = {badError}/>
       <FilterForm value = {newFilter} onChange = {handleFilterChange}/>
       <h2>add a new</h2>
      <PersonForm addFunction = {addPerson} value={newName} onChange = {handleNameChange} value2 = {newNumber} onChange2= {handleNumberChange}/>
       <h2>Numbers</h2> 
        {filterNames.map(x=> <Person key= {x.name} person = {x} function = {deleteSomeone}/>)}
-       <Error message = {newError}/>
+      
     </div>
   )
 

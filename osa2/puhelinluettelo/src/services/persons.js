@@ -11,17 +11,17 @@ const updatePersons = (newPerson) => {
 }
 
 const deletePerson = (person) => {
- if (window.confirm(`Delete ${person.name}?`)) {
-   const deleted = axios.delete(`${baseUrl}/${person.id}`)
-   return deleted.then(response=>response.data)
-} else {
-   return false
-}
+ 
+   return axios.delete(`${baseUrl}/${person.id}`)
+  
+
 }
 
 
 const updatePerson = (person, newPerson) => {
-   return axios.put(`${baseUrl}/${person.id}`, newPerson)
+   return (axios.put(`${baseUrl}/${person.id}`, newPerson))
+   
+
 }
 
 const personService =  { getPersons, updatePersons, deletePerson, updatePerson}
