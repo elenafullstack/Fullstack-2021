@@ -59,6 +59,8 @@ const filterCountries = countries.filter(x => x.name.toLowerCase().includes(filt
 return (
 
 <>
+{console.log(api_key)};
+{console.log("moi")};
 <h1 class="title">Weather app</h1>
 <div>
 <CountryForm value = {filter} onChange = {filterChange}/>
