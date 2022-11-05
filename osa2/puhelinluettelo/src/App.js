@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import personService from './services/persons'
 
 
+
+
 const BadError = (props) => {
   if (props.message !== null && props.message !== '') {
     return (
@@ -202,6 +204,7 @@ const App = () => {
       <h2>Numbers</h2> 
        {filterNames.map(x=> <Person key= {x.name} person = {x} function = {deleteSomeone}/>)}
       
+     <div> ({filterNames.map(x=> <Person key= {x.name} person = {x} function = {deleteSomeone}/>)})</div>
     </div>
   )
 

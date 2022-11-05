@@ -1,0 +1,21 @@
+
+.formContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top:3%;
+    margin-bottom:0.5%;
+}
+input {
+    width: 100%;
+    padding: 8px 8px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+form {
+    font-size:20px;
+}

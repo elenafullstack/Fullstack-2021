@@ -39,9 +39,7 @@ const Course = (props) => {
     return (
       <div>
       <p>
-        total of exercises {props.exercises.reduce((accumulator, currentValue) => {
-          return accumulator+ currentValue
-        }, 0)}
+        total of exercises {props.exercises.reduce((accumulator, currentValue) => {return accumulator+ currentValue}, 0)}
       </p>
       </div>
     )
