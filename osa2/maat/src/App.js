@@ -34,7 +34,7 @@ const hook = () => {
          key: api_key,
          q: city
        }
-       axios.get('http://api.weatherapi.com/v1/current.json', {params})
+       axios.get('https://api.weatherapi.com/v1/current.json', {params})
        
       .then (response => {
         setWeather(response.data)
@@ -59,8 +59,7 @@ const filterCountries = countries.filter(x => x.name.toLowerCase().includes(filt
 return (
 
 <>
-{console.log(api_key)};
-{console.log("moi")};
+
 <h1 class="title">Weather app</h1>
 <div>
 <CountryForm value = {filter} onChange = {filterChange}/>
