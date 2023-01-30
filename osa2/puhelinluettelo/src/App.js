@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import personService from './services/persons'
-
-
+import './App.css';
 
 
 const BadError = (props) => {
@@ -37,41 +36,66 @@ const Error = (props) => {
   }
 }
 
+const Empty = (props) => {
+  if (props.array.length == 0 ) {
+    return (
+      <div>
+        <p>
+          No numbers
+        </p>
+      </div>
+    )
+    } else {
+      return (
+        <>
+        </>
+      )
+    }
+  }
+
 const Person = (props) => {
 
  return (
-      <p> {props.person.name} {props.person.number} <button onClick = {()=>props.function(props.person)}> delete </button></p> 
+     <div> <p> {props.person.name}	&nbsp;&nbsp;&nbsp;{props.person.number}</p> <button onClick = {()=>props.function(props.person)}> Delete </button> </div>
  )
 }
 
 const FilterForm = (props) => {
   return (
   <form>
-    filter shown with: <input value={props.value} onChange = {props.onChange}/>
+    <h2>Filter shown with:</h2> <input type="text"value={props.value} onChange = {props.onChange} placeholder="Type filter..."/>
   </form>
   )
 }
 
 const PersonForm = (props) => {
+
+  let disable = true
+
+console.log(props.value)
+console.log(props.value2)
+
+  if (props.value !== '' && props.value2 !== '') {
+    disable = false
+  }
+
+  {console.log(disable)}
+    
   return (
     <form onSubmit={props.addFunction}> 
-    <div>
-      name: <input 
-      value={props.value}
-      onChange={props.onChange}/>
-      </div>
-      <div>number:<input value={props.value2}
-      onChange={props.onChange2} />
-      </div>
-    <div>
-      <button type="submit">add</button>
-    </div>
-  </form>
+       <h2>Add a new contact</h2>
+          <div> <span>Name:</span> <input type="text"value={props.value} onChange={props.onChange} placeholder="Type name..."/></div>
+          
+          <div><span>Number:</span><input type="tel"value={props.value2} onChange={props.onChange2} placeholder="Type number..."/>  </div>
+          <button type="submit" disabled={disable} id="btn" >Add contact</button>
+    </form>
+
   )
 }
 
 const App = () => {
   const [persons, setPersons] = useState ([])
+      
   
 
   const hook = () => {
@@ -80,6 +104,9 @@ const App = () => {
       setPersons(response.data)
     
     })
+   
+    
+  
   }
 
   useEffect(hook, [])
@@ -89,7 +116,10 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
   const [newError, setError] = useState('')
   const [newTimeout, setNewTimeout] = useState('')
+  const [otherTimeout, setOtherTimeout] = useState('')
   const [badError, setBadError] = useState('')
+
+  let filterNames=persons
   
  
   
@@ -99,10 +129,16 @@ const App = () => {
     }
   const handleNameChange = (event) => {
     setNewName(event.target.value)
+   
+
+
   }
 
   const handleNumberChange = (event) => {
     setNewNumber(event.target.value)
+
+
+   
   }
 
   const handleFilterChange = (event) => {
@@ -110,104 +146,138 @@ const App = () => {
    
   }
 
-  const addPerson = (event) => {
-    event.preventDefault()
+const addPerson = (event) => {
+  event.preventDefault()
 
-    const nameObject = {
-      name: newName,
-      number: newNumber
-    }
-  
+  const nameObject = {
+  name: newName,
+  number: newNumber
+  }
 
-    const already = persons.filter(x => x.name === newName)
-  
+  const already = persons.filter(x => x.name === newName)
+
 
   if(already.length === 1) {
-    
+
     const old = already[0]
     if ( window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-      nameObject.id = old.id
-          personService.updatePerson(old,nameObject).then(response => {
-           setPersons(persons.map(x => x.id !== old.id ? x : response.data))
-           setNewTimeout(clearTimeout(newTimeout))
-           setError(
-             `${newName}'s number is updated`)
-           setNewTimeout(setTimeout(() => {
-             setError(null)
-           }, 5000))
-           callTimeout(newTimeout)
-          
-          }).catch(error=>{
+      personService.updatePerson(old,nameObject).then(response => {
+      response !== null ?  setPersons(persons.map(x => x.id !== old.id ? x : response)) :  new Error(response)
+        setNewTimeout(clearTimeout(newTimeout))
+        setError(`${newName}'s number is updated`)
+        setNewTimeout(setTimeout(() => { setError(null) }, 5000))
+        callTimeout(newTimeout)
+        }).
+        
+        catch(error=>{
+          if (error.response !== undefined) {
+            setOtherTimeout(clearTimeout(otherTimeout))
+            setBadError(`${error.response.data}`)
+              setOtherTimeout(setTimeout(() => {setBadError(null) }, 5000))
+              callTimeout(otherTimeout)
+          } else {
+            const newPersons = persons.filter(x => x.id !== old.id)  
+            setPersons(newPersons)
+            console.log(newPersons)
+            console.log(persons)
+            setOtherTimeout(clearTimeout(otherTimeout))
+            setBadError(`Information of ${nameObject.name} has already been removed from the server`)
+            setOtherTimeout(setTimeout(() => {setBadError(null) }, 5000))
+            callTimeout(otherTimeout)
+          }  
+              
+        })
 
-                setNewTimeout(clearTimeout(newTimeout))
-                 setBadError(
-                  `Information of ${nameObject.name} has already been removed from the server`)
-                  setNewTimeout(setTimeout(() => {
-                  setBadError(null)
-                  }, 5000))
-                 callTimeout(newTimeout)
-                
-                 
-              })
- 
-     
-      
-  }
- }  else {
+    }
+    }  else {
 
-    personService.updatePersons(nameObject)
-    .then(response => {
-    setPersons(persons.concat(response.data))
-     })
-    setNewTimeout(clearTimeout(newTimeout))
-    setError(
-      `${newName} is added to the phonebook`)
-    setNewTimeout(setTimeout(() => {
-      setError(null)
-    }, 5000))
-    callTimeout(newTimeout)
-    setNewName('')
-    setNewNumber('')
-   
-  }
+        personService.updatePersons(nameObject)
+        .then(response => {
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+        setNewTimeout(clearTimeout(newTimeout))
+        setError(`${newName} is added to the phonebook!`)
+        setNewTimeout(setTimeout(() => { setError(null) }, 5000))
+        callTimeout(newTimeout)
+    
 
+        }).catch(error=> {
+          setNewTimeout(clearTimeout(newTimeout))
+           setBadError(`${error.response.data}`)
+            setOtherTimeout(setTimeout(() => {setBadError(null) }, 5000))
+            callTimeout(newTimeout)
+
+        })
+
+    }
 }
 
 
   const deleteSomeone = (person) => {
     if ((window.confirm(`Delete ${person.name}?`))) {
       personService.deletePerson(person).then(response=>response.data)
-     const newPersons = persons.filter(x => x.id !== person.id)  
-    setPersons(newPersons)
-    setNewTimeout(clearTimeout(newTimeout))
-    setError(
-      `'${person.name}' is deleted from the phonebook`)
-     setNewTimeout(setTimeout(() => {
-      setError(null)
-    }, 5000))
-    callTimeout(newTimeout)
+      const newPersons = persons.filter(x => x.id !== person.id)  
+      setPersons(newPersons)
+      console.log(persons)
+      setNewTimeout(clearTimeout(newTimeout))
+      setError( `${person.name} is deleted from the phonebook!`)
+      setNewTimeout(setTimeout(() => { setError(null)}, 5000))
+      callTimeout(newTimeout)
     }  
    
   }
 
+ newFilter !== "" ? filterNames = persons.filter(x => x.name.toLowerCase().includes(newFilter.toLowerCase())) : filterNames=persons
 
-  const filterNames = persons.filter(x => x.name.toLowerCase().includes(newFilter.toLowerCase()))
+
 
   return (
-    <div>
-      <h2>Phonebook</h2>
-      <Error message = {newError}/>
-       <BadError message = {badError}/>
-      <FilterForm value = {newFilter} onChange = {handleFilterChange}/>
-      <h2>add a new</h2>
-     <PersonForm addFunction = {addPerson} value={newName} onChange = {handleNameChange} value2 = {newNumber} onChange2= {handleNumberChange}/>
-      <h2>Numbers</h2> 
-       {filterNames.map(x=> <Person key= {x.name} person = {x} function = {deleteSomeone}/>)}
-      
-     <div> ({filterNames.map(x=> <Person key= {x.name} person = {x} function = {deleteSomeone}/>)})</div>
-    </div>
+
+  
+  
+    <body>
+    <h2 class="title">PHONEBOOK</h2>
+
+    <h3 class="titletext">
+      In this application you can and delete contacts for phonebook. The minimum amount of characters in the number is 8 and in the name 3. If you want to update the number of a contact, it is done by adding the contact again in the form the which makes the application to update the contact.
+    </h3>
+  
+  
+      <div class="container1">
+
+
+        <div>
+          <div>
+            <FilterForm value = {newFilter} onChange = {handleFilterChange}/>
+          </div>
+          <PersonForm addFunction = {addPerson} value={newName} onChange = {handleNameChange} value2 = {newNumber} onChange2= {handleNumberChange} />
+          <Error message = {newError}/>
+        </div>
+
+
+        <div>
+          <h2>Numbers</h2> 
+          <div class="numbers">
+            <div>
+              <Empty array = {filterNames}/>
+              {filterNames.map(x=> <Person key= {x.name} person = {x} function = {deleteSomeone}/>)}
+            </div>
+          </div>
+            <BadError message = {badError}/>
+        </div>
+
+
+      </div>
+
+      <footer>
+        <h3> © Elena Rima 2023</h3>
+      </footer>
+
+    </body>
   )
 
+  
 }
 
 export default App
