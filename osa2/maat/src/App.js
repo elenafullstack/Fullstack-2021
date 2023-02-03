@@ -59,23 +59,25 @@ const filterCountries = countries.filter(x => x.name.toLowerCase().includes(filt
 return (
 
 <>
-
-<h1 class="title">Weather app</h1>
-<div>
-<CountryForm value = {filter} onChange = {filterChange}/>
-
-<section class="container1">
-  <Countries filter={filter} countries = {filterCountries} function={weatherData} weather= {weather} /> 
-</section>
-
-<section class="container2">
-  <div class="countries">
-  {filterCountries.map(x=><Country key = {x.name} countries={filterCountries} country={x} filter = {filter} function={handleClick}/>)}
-  </div>
-</section>
-
-
+<div class="names">
+  <h1 class="title">Country-app</h1>
+  <div class="text"><p>Search countries by typing in the filter field. If only one match is found, the app shows the infromation of the found country and the current weather of the capital of the country</p></div>
 </div>
+  <div>
+  <CountryForm value = {filter} onChange = {filterChange}/>
+
+  <section class="container1">
+    <Countries filter={filter} countries = {filterCountries} function={weatherData} weather= {weather} /> 
+  </section>
+
+  <section class="container2">
+    <div class="countries">
+    {filterCountries.map(x=><Country key = {x.name} countries={filterCountries} country={x} filter = {filter} function={handleClick}/>)}
+    </div>
+  </section>
+
+
+  </div>
 </>
 )
  
