@@ -240,7 +240,7 @@ const addPerson = (event) => {
     <h2 class="title">PHONEBOOK</h2>
 
     <h3 class="titletext">
-      In this application you can and delete contacts for phonebook. The minimum amount of characters in the number is 8 and in the name 3. If you want to update the number of a contact, it is done by adding the contact again in the form the which makes the application to update the contact.
+      In this application you can add, update and delete contacts for phonebook. The phone number must be at least 8 characters long and the name must have at least 3 letters. If you want to update the number of a contact, it is done by adding the contact again to the phonebook with a different number. This makes the application to ask you if you wish to update the contact
     </h3>
   
   
